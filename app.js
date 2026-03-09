@@ -1,23 +1,87 @@
+const catalogo = [
+  { codigo: "1001", nome: "Hambúrguer Completo", categoria: "Lanches", preco: 18.0 },
+  { codigo: "1002", nome: "Hot Dog", categoria: "Lanches", preco: 12.0 },
+  { codigo: "1003", nome: "Batata Frita", categoria: "Porções", preco: 16.5 },
+  { codigo: "2001", nome: "Refrigerante Lata", categoria: "Bebidas", preco: 6.0 },
+  { codigo: "2002", nome: "Suco Natural", categoria: "Bebidas", preco: 8.5 },
+  { codigo: "3001", nome: "Pizza Calabresa", categoria: "Pizzas", preco: 49.9 },
+  { codigo: "3002", nome: "Pizza Quatro Queijos", categoria: "Pizzas", preco: 54.9 },
+  { codigo: "4001", nome: "Mousse de Maracujá", categoria: "Sobremesas", preco: 10.0 },
+  { codigo: "4002", nome: "Pudim", categoria: "Sobremesas", preco: 9.5 },
+  { codigo: "5001", nome: "Promoção Combo", categoria: "Promoção", preco: 25.0 },
+];
+
 const itens = [];
+let categoriaAtual = "Todos";
 
 const refs = {
-  produto: document.getElementById("produto"),
-  quantidade: document.getElementById("quantidade"),
-  preco: document.getElementById("preco"),
-  cliente: document.getElementById("cliente"),
-  doc: document.getElementById("doc"),
-  tipoDocumento: document.getElementById("tipoDocumento"),
-  pagamento: document.getElementById("pagamento"),
+  categorias: document.getElementById("categorias"),
+  produtos: document.getElementById("produtos"),
+  codigoProduto: document.getElementById("codigoProduto"),
+  qtd: document.getElementById("qtd"),
   itensBody: document.getElementById("itensBody"),
   subtotal: document.getElementById("subtotal"),
   impostos: document.getElementById("impostos"),
   total: document.getElementById("total"),
   saida: document.getElementById("saida"),
+  cliente: document.getElementById("cliente"),
+  doc: document.getElementById("doc"),
+  tipoDocumento: document.getElementById("tipoDocumento"),
+  pagamento: document.getElementById("pagamento"),
 };
 
 const money = (n) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-function atualizarTabela() {
+function categoriasUnicas() {
+  const set = new Set(catalogo.map((p) => p.categoria));
+  return ["Todos", ...set];
+}
+
+function renderCategorias() {
+  refs.categorias.innerHTML = "";
+  categoriasUnicas().forEach((categoria) => {
+    const btn = document.createElement("button");
+    btn.className = `categoria-btn ${categoriaAtual === categoria ? "active" : ""}`;
+    btn.textContent = categoria.toUpperCase();
+    btn.onclick = () => {
+      categoriaAtual = categoria;
+      renderCategorias();
+      renderProdutos();
+    };
+    refs.categorias.appendChild(btn);
+  });
+}
+
+function produtosFiltrados() {
+  return categoriaAtual === "Todos" ? catalogo : catalogo.filter((p) => p.categoria === categoriaAtual);
+}
+
+function adicionarItem(produto, qtd) {
+  const existente = itens.find((item) => item.codigo === produto.codigo);
+  if (existente) {
+    existente.qtd += qtd;
+    existente.total = existente.qtd * existente.unit;
+  } else {
+    itens.push({ codigo: produto.codigo, nome: produto.nome, qtd, unit: produto.preco, total: qtd * produto.preco });
+  }
+  renderVenda();
+}
+
+function renderProdutos() {
+  refs.produtos.innerHTML = "";
+  produtosFiltrados().forEach((produto) => {
+    const card = document.createElement("button");
+    card.className = "produto-card";
+    card.innerHTML = `<strong>${produto.nome}</strong><small>Cód: ${produto.codigo}</small><br><span>${money(produto.preco)}</span>`;
+    card.onclick = () => {
+      const qtd = Math.max(1, Number(refs.qtd.value) || 1);
+      adicionarItem(produto, qtd);
+    };
+    refs.produtos.appendChild(card);
+  });
+}
+
+function renderVenda() {
   refs.itensBody.innerHTML = "";
   itens.forEach((item, idx) => {
     const tr = document.createElement("tr");
@@ -26,35 +90,15 @@ function atualizarTabela() {
       <td>${item.qtd}</td>
       <td>${money(item.unit)}</td>
       <td>${money(item.total)}</td>
-      <td><button data-idx="${idx}" class="secondary">Remover</button></td>
+      <td><button class="remover" data-idx="${idx}">x</button></td>
     `;
     refs.itensBody.appendChild(tr);
   });
 
   const subtotal = itens.reduce((acc, item) => acc + item.total, 0);
-  const impostos = subtotal * 0.18;
-  const total = subtotal;
-
   refs.subtotal.textContent = money(subtotal);
-  refs.impostos.textContent = money(impostos);
-  refs.total.textContent = money(total);
-}
-
-function adicionarItem() {
-  const nome = refs.produto.value.trim();
-  const qtd = Number(refs.quantidade.value);
-  const unit = Number(refs.preco.value);
-
-  if (!nome || qtd <= 0 || unit < 0) {
-    alert("Informe produto, quantidade e valor unitário válidos.");
-    return;
-  }
-
-  itens.push({ nome, qtd, unit, total: qtd * unit });
-  refs.produto.value = "";
-  refs.quantidade.value = "1";
-  refs.preco.value = "0";
-  atualizarTabela();
+  refs.impostos.textContent = money(subtotal * 0.18);
+  refs.total.textContent = money(subtotal);
 }
 
 function proximoNumeroSerie(tipo) {
@@ -65,15 +109,14 @@ function proximoNumeroSerie(tipo) {
 }
 
 function gerarChaveAcesso(numero) {
-  const seed = `${Date.now()}${numero}`;
-  return seed.padEnd(44, "0").slice(0, 44);
+  return `${Date.now()}${numero}`.padEnd(44, "0").slice(0, 44);
 }
 
 function gerarXml(doc) {
   const itensXml = doc.itens
     .map(
       (item, idx) =>
-        `<det nItem="${idx + 1}"><prod><xProd>${item.nome}</xProd><qCom>${item.qtd}</qCom><vUnCom>${item.unit.toFixed(
+        `<det nItem="${idx + 1}"><prod><cProd>${item.codigo}</cProd><xProd>${item.nome}</xProd><qCom>${item.qtd}</qCom><vUnCom>${item.unit.toFixed(
           2
         )}</vUnCom><vProd>${item.total.toFixed(2)}</vProd></prod></det>`
     )
@@ -86,7 +129,7 @@ function gerarXml(doc) {
 
 function emitirDocumento() {
   if (!itens.length) {
-    alert("Adicione ao menos um item para emitir o documento.");
+    alert("Adicione itens antes de finalizar.");
     return;
   }
 
@@ -107,34 +150,49 @@ function emitirDocumento() {
     valorTotal,
   };
 
-  const xml = gerarXml(documento);
-
-  refs.saida.textContent = JSON.stringify(
-    {
-      ...documento,
-      xml,
-      observacao:
-        "Documento gerado localmente para demonstração de PDV web. Para validade fiscal, assinar e transmitir via SEFAZ.",
-    },
-    null,
-    2
-  );
+  refs.saida.textContent = JSON.stringify({ ...documento, xml: gerarXml(documento) }, null, 2);
 }
 
 function limparVenda() {
   itens.length = 0;
-  atualizarTabela();
-  refs.saida.textContent = "Nenhum documento emitido.";
+  refs.qtd.value = "1";
+  refs.codigoProduto.value = "";
+  renderVenda();
 }
 
-document.getElementById("addItem").addEventListener("click", adicionarItem);
-document.getElementById("emitir").addEventListener("click", emitirDocumento);
-document.getElementById("limpar").addEventListener("click", limparVenda);
-refs.itensBody.addEventListener("click", (e) => {
-  const idx = e.target.dataset.idx;
-  if (idx === undefined) return;
-  itens.splice(Number(idx), 1);
-  atualizarTabela();
+document.getElementById("menosQtd").addEventListener("click", () => {
+  refs.qtd.value = String(Math.max(1, Number(refs.qtd.value || "1") - 1));
 });
 
-atualizarTabela();
+document.getElementById("maisQtd").addEventListener("click", () => {
+  refs.qtd.value = String(Math.max(1, Number(refs.qtd.value || "1") + 1));
+});
+
+document.getElementById("addPorCodigo").addEventListener("click", () => {
+  const codigo = refs.codigoProduto.value.trim();
+  const produto = catalogo.find((p) => p.codigo === codigo);
+  if (!produto) {
+    alert("Código não encontrado no catálogo.");
+    return;
+  }
+
+  adicionarItem(produto, Math.max(1, Number(refs.qtd.value) || 1));
+  refs.codigoProduto.value = "";
+});
+
+document.getElementById("buscarCodigo").addEventListener("click", () => {
+  refs.codigoProduto.focus();
+});
+
+document.getElementById("cancelar").addEventListener("click", limparVenda);
+document.getElementById("finalizar").addEventListener("click", emitirDocumento);
+
+refs.itensBody.addEventListener("click", (e) => {
+  if (!e.target.classList.contains("remover")) return;
+  itens.splice(Number(e.target.dataset.idx), 1);
+  renderVenda();
+});
+
+renderCategorias();
+renderProdutos();
+renderVenda();

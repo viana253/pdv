@@ -1,33 +1,32 @@
-# PDV Web para Comércio (NF-e / NFC-e)
+# PDV Web para Comércio (Frente de Caixa)
 
-Aplicação web simples de PDV para registrar vendas no caixa e gerar um documento fiscal em **modo demonstração** (sem transmissão real à SEFAZ).
+Protótipo de **frente de caixa web** inspirado em layout de PDV touch, com catálogo de produtos por categoria, adição rápida de itens e emissão de NF-e/NFC-e em modo demonstração local.
 
 ## Funcionalidades
 
-- Cadastro rápido de itens da venda.
+- Layout de frente de caixa com:
+  - categorias de produtos;
+  - grade de itens clicáveis;
+  - painel lateral de venda com código, quantidade e total em destaque.
+- Inclusão de produtos por clique no catálogo ou por código.
+- Ajuste de quantidade com botões `-` e `+`.
+- Remoção de itens da venda.
 - Cálculo automático de subtotal, impostos estimados e total.
-- Emissão de documento no formato **NF-e** ou **NFC-e**.
-- Geração de número sequencial por tipo de documento no navegador (`localStorage`).
-- Geração de estrutura XML simplificada para integração futura.
+- Emissão demo de **NF-e** ou **NFC-e** com XML simplificado (sem assinatura/transmissão SEFAZ).
 
 ## Como executar
-
-Como é um app estático, basta abrir o `index.html` no navegador.
-
-Ou, opcionalmente, executar servidor local:
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Acesse: `http://localhost:8080`
+Acesse `http://localhost:8080`.
 
-## Importante para produção
+## Observação fiscal importante
 
-Este projeto é um ponto de partida. Para emissão fiscal com validade jurídica/fiscal, é necessário:
+Este projeto é apenas demonstrativo. Para uso real, ainda é necessário:
 
-1. Certificado digital (A1/A3) e assinatura XML.
-2. Integração com SEFAZ (autorização, rejeições, inutilização, cancelamento, carta de correção).
-3. Suporte a contingência (offline/SVC).
-4. Regras fiscais completas (CFOP, CST/CSOSN, NCM, CEST, alíquotas, partilha, etc.).
-5. Geração de DANFE/NFC-e e armazenamento seguro dos XMLs autorizados.
+1. Certificado digital e assinatura XML.
+2. Integração SEFAZ (autorização, cancelamento, rejeições, contingência).
+3. Regras fiscais completas (NCM, CFOP, CST/CSOSN, etc.).
+4. Armazenamento seguro de XML autorizado e emissão de DANFE/NFC-e.

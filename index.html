@@ -3,94 +3,89 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PDV Web - NF-e / NFC-e</title>
+    <title>PDV Web - Frente de Caixa</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <header>
-      <h1>PDV Web para Comércio</h1>
-      <p>Operação de caixa com emissão de NF-e e NFC-e (modo demonstração local).</p>
-    </header>
+    <main class="pdv">
+      <header class="topbar">
+        <h1>Frente de Caixa Web</h1>
+        <nav>
+          <button class="top-btn active">Venda</button>
+          <button class="top-btn">Mesa</button>
+          <button class="top-btn">Comanda</button>
+          <button class="top-btn">Caixa</button>
+        </nav>
+      </header>
 
-    <main>
-      <section class="card">
-        <h2>Dados da venda</h2>
-        <div class="grid two">
-          <label>Cliente
-            <input id="cliente" placeholder="Nome do cliente" />
-          </label>
-          <label>CPF/CNPJ
-            <input id="doc" placeholder="000.000.000-00" />
-          </label>
-          <label>Tipo de documento
-            <select id="tipoDocumento">
-              <option value="NFCe">NFC-e (consumidor final)</option>
-              <option value="NFe">NF-e (faturamento)</option>
-            </select>
-          </label>
-          <label>Forma de pagamento
-            <select id="pagamento">
-              <option>Dinheiro</option>
-              <option>Cartão crédito</option>
-              <option>Cartão débito</option>
-              <option>Pix</option>
-              <option>Boleto</option>
-            </select>
-          </label>
-        </div>
+      <section class="catalogo">
+        <div id="categorias" class="categorias"></div>
+        <div id="produtos" class="produtos"></div>
       </section>
 
-      <section class="card">
-        <h2>Itens</h2>
-        <div class="grid three">
-          <label>Produto
-            <input id="produto" placeholder="Ex: Café 500g" />
-          </label>
-          <label>Qtd.
-            <input id="quantidade" type="number" min="1" step="1" value="1" />
-          </label>
-          <label>Valor unitário (R$)
-            <input id="preco" type="number" min="0" step="0.01" value="0" />
-          </label>
+      <aside class="painel-venda">
+        <div class="entrada-item">
+          <label for="codigoProduto">Código</label>
+          <div class="linha-codigo">
+            <input id="codigoProduto" placeholder="Digite o código" />
+            <button id="buscarCodigo">...</button>
+          </div>
+
+          <label for="qtd">Qtde</label>
+          <div class="controles-qtd">
+            <button id="menosQtd">-</button>
+            <input id="qtd" type="number" value="1" min="1" />
+            <button id="maisQtd">+</button>
+            <button id="addPorCodigo">+</button>
+          </div>
         </div>
-        <button id="addItem">Adicionar item</button>
 
         <table>
           <thead>
             <tr>
               <th>Produto</th>
-              <th>Qtd.</th>
-              <th>Unit.</th>
+              <th>Qtde</th>
+              <th>Unitário</th>
               <th>Total</th>
               <th></th>
             </tr>
           </thead>
           <tbody id="itensBody"></tbody>
         </table>
-      </section>
 
-      <section class="card total">
-        <h2>Totais</h2>
-        <p>Subtotal: <strong id="subtotal">R$ 0,00</strong></p>
-        <p>Impostos estimados (18%): <strong id="impostos">R$ 0,00</strong></p>
-        <p>Valor total: <strong id="total">R$ 0,00</strong></p>
-        <div class="actions">
-          <button id="emitir">Emitir Documento</button>
-          <button id="limpar" class="secondary">Limpar venda</button>
-        </div>
-      </section>
-
-      <section class="card">
-        <h2>Documento emitido</h2>
-        <pre id="saida">Nenhum documento emitido.</pre>
-      </section>
+        <section class="totais">
+          <h2>Valor Total</h2>
+          <div class="valor" id="total">R$ 0,00</div>
+          <div class="subinfos">
+            <span>Subtotal: <strong id="subtotal">R$ 0,00</strong></span>
+            <span>Impostos (18%): <strong id="impostos">R$ 0,00</strong></span>
+          </div>
+          <div class="acoes">
+            <button id="cancelar" class="cancelar">Cancelar</button>
+            <button id="finalizar" class="finalizar">Receber e Finalizar</button>
+          </div>
+        </section>
+      </aside>
     </main>
 
-    <footer>
-      <small>
-        Atenção: para produção, integrar com certificado digital A1/A3, SEFAZ e contingência conforme legislação do seu estado.
-      </small>
-    </footer>
+    <section class="fiscal card">
+      <h3>Dados para emissão (demo NF-e/NFC-e)</h3>
+      <div class="grid">
+        <input id="cliente" placeholder="Cliente" />
+        <input id="doc" placeholder="CPF/CNPJ" />
+        <select id="tipoDocumento">
+          <option value="NFCe">NFC-e</option>
+          <option value="NFe">NF-e</option>
+        </select>
+        <select id="pagamento">
+          <option>Dinheiro</option>
+          <option>Cartão crédito</option>
+          <option>Cartão débito</option>
+          <option>Pix</option>
+        </select>
+      </div>
+      <pre id="saida">Nenhum documento emitido.</pre>
+    </section>
 
     <script src="app.js"></script>
   </body>
