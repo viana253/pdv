@@ -1,0 +1,13 @@
+{
+  "name": "pdv-web-local",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PDV web com servidor local para uso na rede interna",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test:syntax": "node --check app.js && node --check server.js && node --check fiscal-service.js && node --check sw.js",
+    "test:smoke": "bash scripts/smoke-test.sh"
+  }
+}
